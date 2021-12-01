@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
-namespace FileNameManager
-{
-    public partial class MainForm : Form
-    {
-        public MainForm()
-        {
+namespace FileNameManager {
+    public partial class MainForm : Form {
+        public MainForm() {
             InitializeComponent();
             m_rawTexts = new TextBox[5];
             m_rawTexts[0] = RawInput1;
@@ -25,11 +23,34 @@ namespace FileNameManager
             m_replaceTexts[3] = NowInput4;
             m_replaceTexts[4] = NowInput5;
 
-            //使用映射获取执行程序集路径
-            string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            //将该路径传递给 System.IO.Path.GetDirectoryName(path)，获得执行程序集所在的目录
-            string directory = System.IO.Path.GetDirectoryName(path);
-            PathInput.Text = directory;
+            ReadConfig();
+        }
+
+        private string m_configPath = "FileNameConfig.txt";
+        private string[] m_config;
+        private void ReadConfig() {
+            bool find = false;
+            if (File.Exists(m_configPath)) {
+                string[] lines = File.ReadAllLines(m_configPath);
+                if (lines.Length > 0) {
+                    m_config = lines;
+                    PathInput.Text = lines[0];
+                    find = true;
+                }
+            }
+
+            if (!find) {
+                //使用映射获取执行程序集路径
+                string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                //将该路径传递给 System.IO.Path.GetDirectoryName(path)，获得执行程序集所在的目录
+                string directory = System.IO.Path.GetDirectoryName(path);
+                PathInput.Text = directory;
+
+                m_config = new string[] {
+                    directory
+                };
+                File.WriteAllLines(m_configPath, m_config);
+            }            
         }
 
         private void LogInfo(string log) {
@@ -50,41 +71,17 @@ namespace FileNameManager
         private TextBox[] m_rawTexts;
         private TextBox[] m_replaceTexts;
 
-        private void MainForm_Load(object sender, EventArgs e)
-        {
+        private void MainForm_Load(object sender, EventArgs e) {
 
         }
 
         private List<string> m_rawStrings = new List<string>(5);
         private List<string> m_replaceStrings = new List<string>(5);
-        private void Replace_Click(object sender, EventArgs e)
-        {
-            m_rawStrings.Clear();
-            m_replaceStrings.Clear();
 
-            for (int i = 0; i < m_rawTexts.Length; i++) {
-                var rawText = m_rawTexts[i];
-                if (string.IsNullOrEmpty(rawText.Text)) {
-                    continue;
-                }
-                m_rawStrings.Add(rawText.Text);
-                var replaceText = m_replaceTexts[i];
-                if (string.IsNullOrEmpty(replaceText.Text)) {
-                    m_replaceStrings.Add("");                    
-                }
-                else {
-                    m_replaceStrings.Add(replaceText.Text);
-                }
-            }
-
-            string path = PathInput.Text;
-            if (!Directory.Exists(path)) {
-                LogError("文件夹路径错误");
-                return;
-            }
-
-            DirectoryInfo info = new DirectoryInfo(path);
-            var fileInfos = info.GetFiles();
+        private int ReplaceName(string path) {
+            int cnt = 0;
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            var fileInfos = dirInfo.GetFiles();
             for (int i = 0; i < fileInfos.Length; i++) {
                 FileInfo fileInfo = fileInfos[i];
                 string name = fileInfo.Name;
@@ -97,17 +94,130 @@ namespace FileNameManager
                     }
                 }
                 if (changed) {
-                    string fullPath = fileInfo.FullName;
-                    fileInfo.MoveTo(System.IO.Path.Combine(info.FullName, name));
+                    ++cnt;
+                    //string fullPath = fileInfo.FullName;
+                    fileInfo.MoveTo(System.IO.Path.Combine(dirInfo.FullName, name));
+                }
+            }
+            return cnt;
+        }
+
+        private List<string> m_ActiveExtensions = new List<string> {
+            ".cs",
+            ".csv",
+            ".txt",
+            ".lua",
+            ".json",
+        };
+
+        private int ReplaceInfo(string path) {
+            int cnt = 0;
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            var fileInfos = dirInfo.GetFiles();
+            for (int i = 0; i < fileInfos.Length; i++) {
+                FileInfo fileInfo = fileInfos[i];
+                if (m_ActiveExtensions.IndexOf(fileInfo.Extension) < 0) {
+                    continue;
+                }
+                string fullPath = fileInfo.FullName;
+                string info = File.ReadAllText(fullPath);
+                bool changed = false;
+                for (int j = 0; j < m_rawStrings.Count; j++) {
+                    string rawString = m_rawStrings[j];
+                    if (info.IndexOf(rawString) >= 0) {
+                        info = info.Replace(rawString, m_replaceStrings[j]);
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    ++cnt;
+                    File.WriteAllText(fullPath, info);
+                }
+            }
+            return cnt;
+        }
+
+        private int ReplaceNewline(string path) {
+            m_rawStrings.Clear();
+            m_replaceStrings.Clear();
+            m_rawStrings.Add("\r\n");
+            m_replaceStrings.Add("\n");
+
+            int cnt = 0;
+            var filePaths = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+            for (int i = 0; i < filePaths.Length; i++) {
+                var filePath = filePaths[i];
+                bool find = false;
+                for (int j = 0; j < m_ActiveExtensions.Count; j++) {
+                    if (filePath.EndsWith(m_ActiveExtensions[j], StringComparison.OrdinalIgnoreCase)) {
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    continue;
+                }
+                string info = File.ReadAllText(filePath);
+                bool changed = false;
+                for (int j = 0; j < m_rawStrings.Count; j++) {
+                    string rawString = m_rawStrings[j];
+                    if (info.IndexOf(rawString) >= 0) {
+                        info = info.Replace(rawString, m_replaceStrings[j]);
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    ++cnt;
+                    File.WriteAllText(filePath, info);
+                }
+            }
+            return cnt;
+        }
+
+        private void Replace_Click(object sender, EventArgs e) {
+            m_rawStrings.Clear();
+            m_replaceStrings.Clear();
+
+            for (int i = 0; i < m_rawTexts.Length; i++) {
+                var rawText = m_rawTexts[i];
+                if (string.IsNullOrEmpty(rawText.Text)) {
+                    continue;
+                }
+                m_rawStrings.Add(rawText.Text);
+                var replaceText = m_replaceTexts[i];
+                if (string.IsNullOrEmpty(replaceText.Text)) {
+                    m_replaceStrings.Add("");
+                }
+                else {
+                    m_replaceStrings.Add(replaceText.Text);
                 }
             }
 
-            LogInfo("替换完成");
+            string path = PathInput.Text;
+            if (!Directory.Exists(path)) {
+                LogError("文件夹路径错误");
+                return;
+            }
+
+            if (replaceInfo.Checked) {
+                int cnt = ReplaceInfo(path);
+                LogInfo($"替换内容完成:{cnt}");
+            }
+            else {
+                int cnt = ReplaceName(path);
+                LogInfo($"替换名称完成:{cnt}");
+            }
         }
 
+        private void UnixNewline_Click(object sender, EventArgs e) {
+            string path = PathInput.Text;
+            int cnt = ReplaceNewline(path);
+            LogInfo($"替换换行完成:{cnt}");
+        }
+
+
         private int m_insertIndex = 0;
-        private void InsertIndex_TextChanged(object sender, EventArgs e)
-        {
+        private void InsertIndex_TextChanged(object sender, EventArgs e) {
             int index;
             if (!int.TryParse(InsertIndex.Text, out index)) {
                 LogError("插入位置错误");
@@ -118,8 +228,7 @@ namespace FileNameManager
             m_insertIndex = index;
         }
 
-        private void InsertPrefix_Click(object sender, EventArgs e)
-        {
+        private void InsertPrefix_Click(object sender, EventArgs e) {
             string path = PathInput.Text;
             if (!Directory.Exists(path)) {
                 LogError("文件夹路径错误");
@@ -151,8 +260,7 @@ namespace FileNameManager
             LogInfo("插入完成");
         }
 
-        private void InsertSuffix_Click(object sender, EventArgs e)
-        {
+        private void InsertSuffix_Click(object sender, EventArgs e) {
             string path = PathInput.Text;
             if (!Directory.Exists(path)) {
                 LogError("文件夹路径错误");
@@ -238,6 +346,17 @@ namespace FileNameManager
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e) {
 
+        }
+
+        private void PathInput_TextChanged(object sender, EventArgs e) {
+            if (m_config == null) {
+                return;
+            }
+            if (m_config[0] == PathInput.Text) {
+                return;
+            }
+            m_config[0] = PathInput.Text;
+            File.WriteAllLines(m_configPath, m_config);
         }
     }
 }

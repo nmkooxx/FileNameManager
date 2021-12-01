@@ -52,6 +52,8 @@
             this.Rename = new System.Windows.Forms.Button();
             this.Log = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.replaceInfo = new System.Windows.Forms.CheckBox();
+            this.UnixNewline = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -154,7 +156,7 @@
             // 
             // InsertPrefix
             // 
-            this.InsertPrefix.Location = new System.Drawing.Point(397, 218);
+            this.InsertPrefix.Location = new System.Drawing.Point(371, 220);
             this.InsertPrefix.Name = "InsertPrefix";
             this.InsertPrefix.Size = new System.Drawing.Size(94, 23);
             this.InsertPrefix.TabIndex = 13;
@@ -164,7 +166,7 @@
             // 
             // InsertSuffix
             // 
-            this.InsertSuffix.Location = new System.Drawing.Point(505, 218);
+            this.InsertSuffix.Location = new System.Drawing.Point(484, 220);
             this.InsertSuffix.Name = "InsertSuffix";
             this.InsertSuffix.Size = new System.Drawing.Size(94, 23);
             this.InsertSuffix.TabIndex = 14;
@@ -213,6 +215,7 @@
             this.PathInput.Name = "PathInput";
             this.PathInput.Size = new System.Drawing.Size(583, 26);
             this.PathInput.TabIndex = 19;
+            this.PathInput.TextChanged += new System.EventHandler(this.PathInput_TextChanged);
             // 
             // SelectDir
             // 
@@ -227,7 +230,7 @@
             // 
             // Rename
             // 
-            this.Rename.Location = new System.Drawing.Point(645, 218);
+            this.Rename.Location = new System.Drawing.Point(595, 220);
             this.Rename.Name = "Rename";
             this.Rename.Size = new System.Drawing.Size(94, 23);
             this.Rename.TabIndex = 21;
@@ -254,11 +257,33 @@
             this.label4.TabIndex = 23;
             this.label4.Text = "插入字符";
             // 
+            // replaceInfo
+            // 
+            this.replaceInfo.AutoSize = true;
+            this.replaceInfo.Location = new System.Drawing.Point(683, 42);
+            this.replaceInfo.Name = "replaceInfo";
+            this.replaceInfo.Size = new System.Drawing.Size(96, 16);
+            this.replaceInfo.TabIndex = 24;
+            this.replaceInfo.Text = "替换文件内容";
+            this.replaceInfo.UseVisualStyleBackColor = true;
+            // 
+            // UnixNewline
+            // 
+            this.UnixNewline.Location = new System.Drawing.Point(695, 220);
+            this.UnixNewline.Name = "UnixNewline";
+            this.UnixNewline.Size = new System.Drawing.Size(93, 23);
+            this.UnixNewline.TabIndex = 25;
+            this.UnixNewline.Text = "切换Unix换行";
+            this.UnixNewline.UseVisualStyleBackColor = true;
+            this.UnixNewline.Click += new System.EventHandler(this.UnixNewline_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(791, 461);
+            this.Controls.Add(this.UnixNewline);
+            this.Controls.Add(this.replaceInfo);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.Log);
             this.Controls.Add(this.Rename);
@@ -317,6 +342,8 @@
         private System.Windows.Forms.Button Rename;
         private System.Windows.Forms.Label Log;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.CheckBox replaceInfo;
+        private System.Windows.Forms.Button UnixNewline;
     }
 }
 
