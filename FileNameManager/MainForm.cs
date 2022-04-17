@@ -228,10 +228,34 @@ namespace FileNameManager {
             m_insertIndex = index;
         }
 
+        private void DelPrefix(string path) {
+            DirectoryInfo info = new DirectoryInfo(path);
+            var fileInfos = info.GetFiles();
+            for (int i = 0; i < fileInfos.Length; i++) {
+                FileInfo fileInfo = fileInfos[i];
+                string name = fileInfo.Name;
+                bool changed = false;
+                if (name.Length > m_insertIndex) {
+                    name = name.Substring(m_insertIndex - 1, name.Length - m_insertIndex + 1);
+                    changed = true;
+                }
+                if (changed) {
+                    fileInfo.MoveTo(Path.Combine(info.FullName, name));
+                }
+            }
+
+            LogInfo("删除完成");
+        }
+
         private void InsertPrefix_Click(object sender, EventArgs e) {
             string path = PathInput.Text;
             if (!Directory.Exists(path)) {
                 LogError("文件夹路径错误");
+                return;
+            }
+
+            if (CheckDel.Checked) {
+                DelPrefix(path);
                 return;
             }
 
@@ -260,10 +284,20 @@ namespace FileNameManager {
             LogInfo("插入完成");
         }
 
+        private void DelSuffix() {
+
+            LogInfo("删除完成");
+        }
+
         private void InsertSuffix_Click(object sender, EventArgs e) {
             string path = PathInput.Text;
             if (!Directory.Exists(path)) {
                 LogError("文件夹路径错误");
+                return;
+            }
+
+            if (CheckDel.Checked) {
+                DelSuffix();
                 return;
             }
 

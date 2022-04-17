@@ -54,6 +54,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.replaceInfo = new System.Windows.Forms.CheckBox();
             this.UnixNewline = new System.Windows.Forms.Button();
+            this.CheckDel = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -156,21 +157,21 @@
             // 
             // InsertPrefix
             // 
-            this.InsertPrefix.Location = new System.Drawing.Point(371, 220);
+            this.InsertPrefix.Location = new System.Drawing.Point(498, 220);
             this.InsertPrefix.Name = "InsertPrefix";
-            this.InsertPrefix.Size = new System.Drawing.Size(94, 23);
+            this.InsertPrefix.Size = new System.Drawing.Size(43, 23);
             this.InsertPrefix.TabIndex = 13;
-            this.InsertPrefix.Text = "从前方插入";
+            this.InsertPrefix.Text = "前方";
             this.InsertPrefix.UseVisualStyleBackColor = true;
             this.InsertPrefix.Click += new System.EventHandler(this.InsertPrefix_Click);
             // 
             // InsertSuffix
             // 
-            this.InsertSuffix.Location = new System.Drawing.Point(484, 220);
+            this.InsertSuffix.Location = new System.Drawing.Point(546, 220);
             this.InsertSuffix.Name = "InsertSuffix";
-            this.InsertSuffix.Size = new System.Drawing.Size(94, 23);
+            this.InsertSuffix.Size = new System.Drawing.Size(45, 23);
             this.InsertSuffix.TabIndex = 14;
-            this.InsertSuffix.Text = "从后方插入";
+            this.InsertSuffix.Text = "后方";
             this.InsertSuffix.UseVisualStyleBackColor = true;
             this.InsertSuffix.Click += new System.EventHandler(this.InsertSuffix_Click);
             // 
@@ -204,7 +205,7 @@
             this.PathLabel.Font = new System.Drawing.Font("宋体", 12F);
             this.PathLabel.Location = new System.Drawing.Point(12, 9);
             this.PathLabel.Name = "PathLabel";
-            this.PathLabel.Size = new System.Drawing.Size(88, 16);
+            this.PathLabel.Size = new System.Drawing.Size(87, 16);
             this.PathLabel.TabIndex = 18;
             this.PathLabel.Text = "文件夹路径";
             // 
@@ -277,11 +278,22 @@
             this.UnixNewline.UseVisualStyleBackColor = true;
             this.UnixNewline.Click += new System.EventHandler(this.UnixNewline_Click);
             // 
+            // CheckDel
+            // 
+            this.CheckDel.AutoSize = true;
+            this.CheckDel.Location = new System.Drawing.Point(397, 223);
+            this.CheckDel.Name = "CheckDel";
+            this.CheckDel.Size = new System.Drawing.Size(48, 16);
+            this.CheckDel.TabIndex = 26;
+            this.CheckDel.Text = "删除";
+            this.CheckDel.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(791, 461);
+            this.Controls.Add(this.CheckDel);
             this.Controls.Add(this.UnixNewline);
             this.Controls.Add(this.replaceInfo);
             this.Controls.Add(this.label4);
@@ -344,6 +356,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.CheckBox replaceInfo;
         private System.Windows.Forms.Button UnixNewline;
+        private System.Windows.Forms.CheckBox CheckDel;
     }
 }
 
